@@ -1,0 +1,52 @@
+================================================================================
+          EVIDENCIA DE PRUEBA: P2 - CONCURRENCIA MASIVA (10 CLIENTES)
+================================================================================
+Fecha y Hora:           2026-11-05 10:06:48
+Servidor Destino:       127.0.0.1:58955
+Producto Bajo Prueba:   PROD-002 (Mouse Inalámbrico Logitech)
+Total Clientes / Hilos: 10
+Punto de Disparo:       Sincronizado vía threading.Barrier(10)
+Expected Version Inicial Compartida: v1
+
+--------------------------------------------------------------------------------
+                     ESTADO DEL INVENTARIO (PRE Y POST)
+--------------------------------------------------------------------------------
+Stock Inicial:          50 unidades
+Stock Final Obtenido:   52 unidades (Esperado: 52)
+Versión Inicial:        v1
+Versión Final Obtenida: v2 (Esperada: v2)
+
+--------------------------------------------------------------------------------
+                     RESUMEN ESTADÍSTICO DE OPERACIONES
+--------------------------------------------------------------------------------
+Total Solicitudes:                   10
+Transacciones Aceptadas (Éxito):     1
+Rechazadas por Conflicto de Versión: 9
+Rechazos Anómalos:                   0
+
+--------------------------------------------------------------------------------
+                     DESGLOSE POR CLIENTE
+--------------------------------------------------------------------------------
+Hilo         | Resultado            | Latencia   | Detalle
+---------------------------------------------------------------------------
+Cliente-01   | ÉXITO                |   4.77 ms | Stock: 52, v2
+Cliente-02   | CONFLICTO VERSIÓN    |   6.04 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-03   | CONFLICTO VERSIÓN    |   9.26 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-04   | CONFLICTO VERSIÓN    |  13.47 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-05   | CONFLICTO VERSIÓN    |  13.54 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-06   | CONFLICTO VERSIÓN    |  11.03 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-07   | CONFLICTO VERSIÓN    |  10.82 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-08   | CONFLICTO VERSIÓN    |  12.50 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-09   | CONFLICTO VERSIÓN    |  12.41 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+Cliente-10   | CONFLICTO VERSIÓN    |   6.68 ms | Conflicto de versión en 'PROD-002'. Esperada: 1, actual en servidor: 2.
+--------------------------------------------------------------------------------
+                     EVALUACIÓN FORMAL DE INVARIANTES
+--------------------------------------------------------------------------------
+Invariante 1 (Stock):   52 == 50 + (2 * 1) -> CUMPLE
+Invariante 2 (Versión): 2 == 1 + 1 -> CUMPLE
+
+DICTAMEN: [APROBADA]
+Fundamento: Solo la primera transacción en ser evaluada por la sentencia atómica
+del servidor adquirió el incremento. Las 9 restantes fueron rechazadas
+inmediatamente al validar version = expected_version, previniendo lost updates.
+================================================================================

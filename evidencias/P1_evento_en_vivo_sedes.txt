@@ -1,0 +1,37 @@
+================================================================================
+          EVIDENCIA DE PRUEBA: P1 - EVENTOS EN VIVO ENTRE SEDES (STREAMING)
+================================================================================
+Fecha y Hora:           2026-11-05 10:06:48
+Servidor Destino:       127.0.0.1:52329
+Sede Emisora:           Sede Sur (usuario: sede_sur)
+Sede Receptora:         Sede Norte (usuario: sede_norte)
+Canal de Comunicación:  gRPC WatchProducts (Server-Streaming persistente)
+
+--------------------------------------------------------------------------------
+                     DETALLE DE LA OPERACIÓN Y PROPAGACIÓN
+--------------------------------------------------------------------------------
+1. Producto afectado:   PROD-001 (Laptop ThinkPad T14)
+2. Estado Inicial:      Stock = 25 | Versión = v2
+3. Operación Sede Sur:  AdjustStock(delta=+5, expected_version=2)
+4. Latencia de Ajuste:  2.91 ms
+5. Resultado en Sur:    ÉXITO -> Nuevo Stock: 30, Versión: v3
+
+--------------------------------------------------------------------------------
+                  RECEPCIÓN EN TIEMPO REAL (SEDE NORTE)
+--------------------------------------------------------------------------------
+Evento recibido en Norte: SÍ
+Tipo de evento:           UPDATED
+Origen reportado:         Sede Sur
+Stock en el evento:       30
+Versión en el evento:     v3
+
+Verificación en Sede Norte por consulta gRPC GetProduct independiente:
+  Stock consultado por Sede Norte: 30 (Esperado: 30)
+  Versión consultada por Norte:   v3 (Esperada: v3)
+
+--------------------------------------------------------------------------------
+DICTAMEN: [APROBADA]
+Fundamento: La propagación de eventos funciona de forma reactiva (push) mediante
+el bus de eventos en memoria y gRPC streaming, sin requerir sondeo (polling).
+Ambos clientes observan un estado idéntico y consistente.
+================================================================================

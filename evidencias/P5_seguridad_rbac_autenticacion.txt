@@ -1,0 +1,36 @@
+================================================================================
+          EVIDENCIA DE PRUEBA: P5 - SEGURIDAD Y CONTROL DE ACCESO (RBAC)
+================================================================================
+Fecha y Hora:           2026-11-05 10:06:52
+Servidor Destino:       127.0.0.1:58965
+Mecanismo de Seguridad: Interceptor gRPC de Servidor + Tokens Bearer Criptográficos
+
+--------------------------------------------------------------------------------
+                     EVALUACIÓN DE CASOS DE SEGURIDAD
+--------------------------------------------------------------------------------
+1. Autenticación con contraseña errónea:
+   - Solicitud:  Login(usuario='sede_sur', password='ContraseñaFalsa#123')
+   - Resultado:  RECHAZADO (Correcto)
+
+2. Autenticación legítima con cuenta Simulador:
+   - Solicitud:  Login(usuario='simulador', password='Sim#2026')
+   - Resultado:  AUTENTICADO (Rol: SIMULADOR)
+
+3. Invocación de CreateProduct por rol SIMULADOR:
+   - Permiso requerido: crear_producto (Exclusivo de rol SEDE)
+   - Resultado:         BLOQUEADO con PERMISSION_DENIED (PermisoDenegado)
+
+4. Invocación de DeleteProduct por rol SIMULADOR:
+   - Permiso requerido: eliminar_producto (Exclusivo de rol SEDE)
+   - Resultado:         BLOQUEADO con PERMISSION_DENIED (PermisoDenegado)
+
+5. Invocación de AdjustStock por rol SIMULADOR:
+   - Permiso requerido: ajustar_stock (Permitido a rol SIMULADOR)
+   - Resultado:         AUTORIZADO Y EJECUTADO CON ÉXITO
+
+--------------------------------------------------------------------------------
+DICTAMEN: [APROBADA]
+Fundamento: El AuthInterceptor intercepta las llamadas previas al Servicer,
+inspecciona los metadatos gRPC y garantiza que ninguna sede o simulador pueda
+ejecutar operaciones fuera de los privilegios asignados por su rol.
+================================================================================

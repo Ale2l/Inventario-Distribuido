@@ -1,0 +1,27 @@
+================================================================================
+          EVIDENCIA DE PRUEBA: P3 - RECHAZO DE STOCK INSUFICIENTE
+================================================================================
+Fecha y Hora:           2026-11-05 10:06:48
+Servidor Destino:       127.0.0.1:58958
+Producto Probado:       PROD-003 (Teclado Mecánico Keychron K2)
+Stock Disponible:       30 unidades
+Versión Actual:         v1
+Ajuste Solicitado:      -40 unidades (Dejaría stock en -10)
+
+--------------------------------------------------------------------------------
+                     RESPUESTA DEL SERVIDOR CENTRAL
+--------------------------------------------------------------------------------
+Operación Exitosa:      NO (Rechazada)
+Conflicto de Versión:   NO (Versión era correcta)
+Mensaje del Servidor:   "Stock insuficiente para 'PROD-003'. Stock actual: 30, ajuste solicitado: -40."
+
+--------------------------------------------------------------------------------
+                     VERIFICACIÓN DE INALTERABILIDAD
+--------------------------------------------------------------------------------
+Stock Posterior a la llamada:   30 unidades (Permanece en 30)
+Versión Posterior a la llamada: v1 (Permanece en v1)
+
+DICTAMEN: [APROBADA]
+Fundamento: La restricción CHECK (stock >= 0) y la validación WHERE stock + delta >= 0
+garantizan atomicidad: una operación no autorizada jamás altera los datos.
+================================================================================

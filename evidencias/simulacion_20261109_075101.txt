@@ -1,0 +1,74 @@
+================================================================================
+          EVIDENCIA DE SIMULACIÓN DE CONCURRENCIA DISTRIBUIDA
+               SISTEMA DE INVENTARIO DISTRIBUIDO (gRPC)
+================================================================================
+Fecha y Hora:           2026-11-09 07:50:22
+Servidor Central:       26.119.124.46:50051
+Usuario / Rol:          simulador / SIMULADOR
+Producto Bajo Prueba:   PROD-003 (Teclado Mecánico Keychron K2)
+Número de Hilos:        20
+Delta por Solicitud:    +14
+Modo de Ejecución:      Sin reintento (1 gana, N-1 conflicto)
+
+--------------------------------------------------------------------------------
+                     ESTADO DEL INVENTARIO (PRE Y POST)
+--------------------------------------------------------------------------------
+Stock Inicial:          30 unidades
+Stock Final Obtenido:   44 unidades (Esperado: 44)
+Versión Inicial:        v1
+Versión Final Obtenida: v2 (Esperada: v2)
+
+--------------------------------------------------------------------------------
+                     RESUMEN ESTADÍSTICO DE OPERACIONES
+--------------------------------------------------------------------------------
+Total de Solicitudes Enviadas:       20
+Operaciones Exitosas (Aceptadas):   1
+Rechazadas por Conflicto de Versión: 19
+Invariante Matemática Válida:        SÍ
+
+--------------------------------------------------------------------------------
+                     DESGLOSE INDIVIDUAL POR HILO CLIENTE
+--------------------------------------------------------------------------------
+Hilo         | Resultado            | Versión  | Reintentos | Tiempo (ms)  | Detalle
+--------------------------------------------------------------------------------
+Cliente-01   | ÉXITO                | v1       | 0          | 553.30       | Aceptado -> Stock: 44, v2
+Cliente-02   | CONFLICTO VERSIÓN    | v1       | 0          | 554.84       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-03   | CONFLICTO VERSIÓN    | v1       | 0          | 922.67       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-04   | CONFLICTO VERSIÓN    | v1       | 0          | 553.28       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-05   | CONFLICTO VERSIÓN    | v1       | 0          | 553.01       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-06   | CONFLICTO VERSIÓN    | v1       | 0          | 919.05       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-07   | CONFLICTO VERSIÓN    | v1       | 0          | 551.92       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-08   | CONFLICTO VERSIÓN    | v1       | 0          | 551.28       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-09   | CONFLICTO VERSIÓN    | v1       | 0          | 920.07       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-10   | CONFLICTO VERSIÓN    | v1       | 0          | 918.72       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-11   | CONFLICTO VERSIÓN    | v1       | 0          | 920.29       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-12   | CONFLICTO VERSIÓN    | v1       | 0          | 919.54       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-13   | CONFLICTO VERSIÓN    | v1       | 0          | 920.47       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-14   | CONFLICTO VERSIÓN    | v1       | 0          | 921.11       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-15   | CONFLICTO VERSIÓN    | v1       | 0          | 921.79       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-16   | CONFLICTO VERSIÓN    | v1       | 0          | 1049.03      | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-17   | CONFLICTO VERSIÓN    | v1       | 0          | 1049.90      | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-18   | CONFLICTO VERSIÓN    | v1       | 0          | 1050.65      | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-19   | CONFLICTO VERSIÓN    | v1       | 0          | 920.55       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+Cliente-20   | CONFLICTO VERSIÓN    | v1       | 0          | 924.78       | Conflicto de versión en 'PROD-003'. Esperada: 1, actual en servidor: 2.
+--------------------------------------------------------------------------------
+                     EVALUACIÓN FORMAL DE INVARIANTES
+--------------------------------------------------------------------------------
+Invariante 1 (Conservación de Stock):
+  Fórmula:  Stock_Final == Stock_Inicial + (Delta * Exitosas)
+  Cálculo:  44 == 30 + (14 * 1) -> 44 == 44 [CUMPLE]
+
+Invariante 2 (Monotonía de Versión):
+  Fórmula:  Versión_Final == Versión_Inicial + Exitosas
+  Cálculo:  2 == 1 + 1 -> 2 == 2 [CUMPLE]
+
+DICTAMEN FINAL: [INVARIANTE SATISFECHA - CONSISTENCIA ESTRICTA GARANTIZADA]
+Explicación de Concurrencia:
+El servidor central ejecuta la actualización de inventario de forma atómica
+dentro de la base de datos PostgreSQL utilizando validación condicional estricta:
+UPDATE productos SET stock = stock + delta, version = version + 1
+WHERE id = product_id AND version = expected_version AND stock + delta >= 0
+Esto garantiza que solo una transacción logre modificar el registro para una
+versión dada, rechazando cualquier intento con una versión desactualizada sin
+provocar lecturas sucias, actualizaciones perdidas (Lost Updates) ni bloqueos de mesa.
+================================================================================

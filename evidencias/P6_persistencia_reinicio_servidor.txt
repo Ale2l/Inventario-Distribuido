@@ -1,0 +1,33 @@
+================================================================================
+          EVIDENCIA DE PRUEBA: P6 - PERSISTENCIA TRAS REINICIO DEL SERVIDOR
+================================================================================
+Fecha y Hora:           2026-11-05 10:06:53
+Servidor Destino:       127.0.0.1:58888
+Producto Evaluado:      PROD-005 (Auriculares Sony WH-1000XM5)
+
+--------------------------------------------------------------------------------
+                     CICLO DE MODIFICACIÓN Y REINICIO
+--------------------------------------------------------------------------------
+1. Estado Inicial en Servidor 1:
+   - Stock Inicial:     11 unidades
+   - Versión Inicial:   v2
+
+2. Operación de Modificación en Servidor 1:
+   - Ajuste aplicado:   +7 unidades
+   - Stock resultante:  18 unidades
+   - Versión nueva:     v3
+
+3. Reinicio Completo del Servicio:
+   - Instancia 1 de gRPC detenida y liberada.
+   - Instancia 2 de gRPC iniciada en el mismo puerto 58888.
+
+4. Consulta Independiente desde Servidor 2 (Sede Norte):
+   - Stock leído tras reinicio:   18 unidades (Esperado: 18)
+   - Versión leída tras reinicio: v3 (Esperada: v3)
+
+--------------------------------------------------------------------------------
+DICTAMEN: [APROBADA]
+Fundamento: La separación entre el servidor de aplicación gRPC sin estado y
+la capa de almacenamiento asegura que ante reinicios o despliegues del servidor,
+los datos del inventario y el correlativo de versiones permanecen inmutables.
+================================================================================

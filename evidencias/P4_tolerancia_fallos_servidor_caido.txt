@@ -1,0 +1,33 @@
+================================================================================
+          EVIDENCIA DE PRUEBA: P4 - TOLERANCIA A FALLAS Y RECONEXIÓN
+================================================================================
+Fecha y Hora:           2026-11-05 10:06:52
+Servidor Destino:       127.0.0.1:58999
+Cliente de Prueba:      Sede Sur (sede_sur)
+
+--------------------------------------------------------------------------------
+                     CRONOLOGÍA DE EVENTOS DE RED
+--------------------------------------------------------------------------------
+1. Servidor gRPC iniciado en puerto 58999.
+2. Conexión y consulta inicial exitosa: SÍ.
+3. Servidor detenido de forma forzada (simulación de corte eléctrico o caída de red).
+4. El cliente realiza llamada gRPC con servidor inactivo:
+   - ¿Atrapó ServidorNoDisponible?: SÍ
+   - ¿Se cerró o colgó el programa?: NO (Manejo de excepciones controlado).
+5. Servidor reiniciado en el mismo puerto TCP 58999.
+6. El cliente reconecta y consulta el producto nuevamente:
+   - ¿Llamada post-recuperación exitosa?: SÍ.
+
+Transiciones de estado notificadas por el hilo de streaming:
+  [10:06:48.736] Estado: CONECTADO      | Detalle: Conectando al flujo de eventos...
+  [10:06:48.737] Estado: CONECTADO      | Detalle: Escuchando eventos en tiempo real.
+  [10:06:49.041] Estado: RECONECTANDO   | Detalle: El servidor central no está disponible en la dirección configurada. Verifique la conexión de red o que el servidor esté activo. (Detalle: Cancelling all calls). Reintentando conexión en 1s...
+  [10:06:50.042] Estado: CONECTADO      | Detalle: Conectando al flujo de eventos...
+  [10:06:50.042] Estado: CONECTADO      | Detalle: Escuchando eventos en tiempo real.
+  [10:06:52.562] Estado: DESCONECTADO   | Detalle: Flujo de eventos en tiempo real detenido.
+--------------------------------------------------------------------------------
+DICTAMEN: [APROBADA]
+Fundamento: La capa cliente abstrae los errores gRPC UNAVAILABLE traduciéndolos a
+excepciones de dominio en español. El bucle de reconexión con espera adaptativa
+permite la continuidad operativa sin reiniciar las interfaces de usuario.
+================================================================================

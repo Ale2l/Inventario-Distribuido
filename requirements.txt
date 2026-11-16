@@ -1,0 +1,6 @@
+grpcio==1.84.1
+grpcio-tools==1.84.1
+protobuf==7.36.2
+psycopg[binary,pool]==3.3.6
+bcrypt==5.0.0
+customtkinter==6.0.0

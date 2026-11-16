@@ -1,0 +1,57 @@
+================================================================================
+          EVIDENCIA DE SIMULACIÓN DE CONCURRENCIA DISTRIBUIDA
+               SISTEMA DE INVENTARIO DISTRIBUIDO (gRPC)
+================================================================================
+Fecha y Hora:           2026-10-30 15:15:00
+Servidor Central:       localhost:50051
+Usuario / Rol:          simulador / SIMULADOR
+Producto Bajo Prueba:   PROD-001 (Laptop Gamer)
+Número de Hilos:        3
+Delta por Solicitud:    +1
+Modo de Ejecución:      Sin reintento (1 gana, N-1 conflicto)
+
+--------------------------------------------------------------------------------
+                     ESTADO DEL INVENTARIO (PRE Y POST)
+--------------------------------------------------------------------------------
+Stock Inicial:          10 unidades
+Stock Final Obtenido:   11 unidades (Esperado: 11)
+Versión Inicial:        v1
+Versión Final Obtenida: v2 (Esperada: v2)
+
+--------------------------------------------------------------------------------
+                     RESUMEN ESTADÍSTICO DE OPERACIONES
+--------------------------------------------------------------------------------
+Total de Solicitudes Enviadas:       3
+Operaciones Exitosas (Aceptadas):   1
+Rechazadas por Conflicto de Versión: 2
+Invariante Matemática Válida:        SÍ
+
+--------------------------------------------------------------------------------
+                     DESGLOSE INDIVIDUAL POR HILO CLIENTE
+--------------------------------------------------------------------------------
+Hilo         | Resultado            | Versión  | Reintentos | Tiempo (ms)  | Detalle
+--------------------------------------------------------------------------------
+Cliente-01   | ÉXITO                | v1       | 0          | 4.20         | Aceptado
+Cliente-02   | CONFLICTO VERSIÓN    | v1       | 0          | 4.50         | Conflicto
+Cliente-03   | CONFLICTO VERSIÓN    | v1       | 0          | 4.80         | Conflicto
+--------------------------------------------------------------------------------
+                     EVALUACIÓN FORMAL DE INVARIANTES
+--------------------------------------------------------------------------------
+Invariante 1 (Conservación de Stock):
+  Fórmula:  Stock_Final == Stock_Inicial + (Delta * Exitosas)
+  Cálculo:  11 == 10 + (1 * 1) -> 11 == 11 [CUMPLE]
+
+Invariante 2 (Monotonía de Versión):
+  Fórmula:  Versión_Final == Versión_Inicial + Exitosas
+  Cálculo:  2 == 1 + 1 -> 2 == 2 [CUMPLE]
+
+DICTAMEN FINAL: [INVARIANTE SATISFECHA - CONSISTENCIA ESTRICTA GARANTIZADA]
+Explicación de Concurrencia:
+El servidor central ejecuta la actualización de inventario de forma atómica
+dentro de la base de datos PostgreSQL utilizando validación condicional estricta:
+UPDATE productos SET stock = stock + delta, version = version + 1
+WHERE id = product_id AND version = expected_version AND stock + delta >= 0
+Esto garantiza que solo una transacción logre modificar el registro para una
+versión dada, rechazando cualquier intento con una versión desactualizada sin
+provocar lecturas sucias, actualizaciones perdidas (Lost Updates) ni bloqueos de mesa.
+================================================================================
